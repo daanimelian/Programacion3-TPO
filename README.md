@@ -18,8 +18,6 @@ El proyecto incluye lógica de grafos para encontrar caminos entre refugios (BFS
 
 ## 📂 Estructura del proyecto
 
-## 📂 Estructura del proyecto
-
 ```
 src/
  └── main/java/com/programacion3/adoptme
