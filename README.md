@@ -162,7 +162,7 @@ Nombre | Legajo
 --------|----------
 Daniela Melian | 198423   
 Lucas Vitale | [Legajo] 
-Camila Di Laudo| 1193552
+Camila Di Laudo| 1193552 
 
 ---
 
