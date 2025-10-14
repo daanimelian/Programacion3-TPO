@@ -49,6 +49,16 @@ CREATE
     (a)-[:NEAR {distKm:10, timeMin:20}]->(c),
     (c)-[:NEAR {distKm:14, timeMin:25}]->(h)
 """).run();
+        neo4j.query("""
+CREATE
+      (d1:Dog {id:'D1', name:'Luna',  size:'SMALL',  weightKg:8,  age:2, energy:'LOW',    goodWithKids:true,  specialNeeds:false, priority:4}),
+      (d2:Dog {id:'D2', name:'Toto',   size:'MEDIUM', weightKg:18, age:3, energy:'HIGH',   goodWithKids:true,  specialNeeds:false, priority:6}),
+      (d3:Dog {id:'D3', name:'Rex', size:'LARGE',  weightKg:25, age:5, energy:'MEDIUM', goodWithKids:false, specialNeeds:true,  priority:8}),
+      (d4:Dog {id:'D4', name:'Miranda',  size:'SMALL',  weightKg:10, age:1, energy:'HIGH',   goodWithKids:true,  specialNeeds:false, priority:5}),
+      (d5:Dog {id:'D5', name:'Perchita',  size:'MEDIUM', weightKg:15, age:4, energy:'MEDIUM', goodWithKids:true,  specialNeeds:false, priority:3}),
+      (d6:Dog {id:'D6', name:'Lina', size:'LARGE',  weightKg:30, age:6, energy:'LOW',    goodWithKids:false, specialNeeds:true,  priority:7})
+""").run();
+        
         System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
     }
 }
