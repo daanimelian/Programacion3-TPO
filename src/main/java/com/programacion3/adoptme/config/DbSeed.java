@@ -79,6 +79,18 @@ CREATE
       (p3:Adopter {id:'P3', name:'Daniela',  budget:30000, hasYard:true,  hasKids:false, maxDogs:3})
 """).run();
         
+        neo4j.query("""
+MATCH
+      (p1:Adopter {id:'P1'}), (p2:Adopter {id:'P2'}), (p3:Adopter {id:'P3'}),
+      (d1:Dog {id:'D1'}), (d2:Dog {id:'D2'}), (d3:Dog {id:'D3'}), (d4:Dog {id:'D4'}), (d5:Dog {id:'D5'})
+CREATE
+      (p1)-[:ADOPTS]->(d1),
+      (p1)-[:ADOPTS]->(d2),
+      (p2)-[:ADOPTS]->(d3),
+      (p3)-[:ADOPTS]->(d4),
+      (p3)-[:ADOPTS]->(d5)
+""").run();
+        
         System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
     }
 }
