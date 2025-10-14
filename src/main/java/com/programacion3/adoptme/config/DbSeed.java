@@ -39,12 +39,16 @@ CREATE (a:Shelter {id:'A', name:'Refugio A', capacity:20}),
 """).run();
 
         neo4j.query("""
-MATCH (a:Shelter {id:'A'}),(b:Shelter {id:'B'}),(c:Shelter {id:'C'})
-CREATE (a)-[:NEAR {distKm:12, timeMin:25}]->(b),
-       (b)-[:NEAR {distKm:10, timeMin:18}]->(c),
-       (a)-[:NEAR {distKm:30, timeMin:60}]->(c)
+MATCH (a:Shelter {id:'A'}),(b:Shelter {id:'B'}),(c:Shelter {id:'C'}), (h:Shelter {id:'H'})
+CREATE 
+    (h)-[:NEAR {distKm:5,  timeMin:10}]->(a),
+    (h)-[:NEAR {distKm:7,  timeMin:15}]->(b),
+    (h)-[:NEAR {distKm:9,  timeMin:18}]->(c),
+    (a)-[:NEAR {distKm:6,  timeMin:12}]->(b),
+    (b)-[:NEAR {distKm:8,  timeMin:16}]->(c),
+    (a)-[:NEAR {distKm:10, timeMin:20}]->(c),
+    (c)-[:NEAR {distKm:14, timeMin:25}]->(h)
 """).run();
-
         System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
     }
 }
