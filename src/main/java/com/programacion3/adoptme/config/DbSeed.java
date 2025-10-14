@@ -59,6 +59,19 @@ CREATE
       (d6:Dog {id:'D6', name:'Lina', size:'LARGE',  weightKg:30, age:6, energy:'LOW',    goodWithKids:false, specialNeeds:true,  priority:7})
 """).run();
         
+        neo4j.query("""
+MATCH
+      (a:Shelter {id:'A'}), (b:Shelter {id:'B'}), (c:Shelter {id:'C'}), (h:Shelter {id:'H'}),
+      (d1:Dog {id:'D1'}), (d2:Dog {id:'D2'}), (d3:Dog {id:'D3'}), (d4:Dog {id:'D4'}), (d5:Dog {id:'D5'}), (d6:Dog {id:'D6'})
+CREATE
+      (a)-[:HAS_DOG]->(d1),
+      (a)-[:HAS_DOG]->(d2),
+      (b)-[:HAS_DOG]->(d3),
+      (c)-[:HAS_DOG]->(d4),
+      (h)-[:HAS_DOG]->(d5),
+      (h)-[:HAS_DOG]->(d6)
+""").run();
+        
         System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
     }
 }
