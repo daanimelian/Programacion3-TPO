@@ -33,7 +33,9 @@ public class DbSeed {
         neo4j.query("""
 CREATE (a:Shelter {id:'A', name:'Refugio A', capacity:20}),
        (b:Shelter {id:'B', name:'Refugio B', capacity:15}),
-       (c:Shelter {id:'C', name:'Refugio C', capacity:10})
+       (c:Shelter {id:'C', name:'Refugio C', capacity:10}),
+       (h:Shelter {id:'H', name:'Central Hub', capacity:40})
+
 """).run();
 
         neo4j.query("""
