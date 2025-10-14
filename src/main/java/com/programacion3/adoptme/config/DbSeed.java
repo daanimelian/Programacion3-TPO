@@ -72,6 +72,13 @@ CREATE
       (h)-[:HAS_DOG]->(d6)
 """).run();
         
+        neo4j.query("""
+CREATE
+      (p1:Adopter {id:'P1', name:'Camila', budget:25000, hasYard:true,  hasKids:true,  maxDogs:2}),
+      (p2:Adopter {id:'P2', name:'Lucas', budget:18000, hasYard:false, hasKids:false, maxDogs:1}),
+      (p3:Adopter {id:'P3', name:'Daniela',  budget:30000, hasYard:true,  hasKids:false, maxDogs:3})
+""").run();
+        
         System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
     }
 }
