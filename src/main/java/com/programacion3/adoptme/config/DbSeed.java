@@ -91,6 +91,6 @@ CREATE
       (p3)-[:ADOPTS]->(d5)
 """).run();
         
-        System.out.println("[SEED] Base sembrada con A, B, C y relaciones NEAR.");
+        System.out.println("[SEED] Base sembrada con shelters, dogs, adopters y relaciones NEAR.");
     }
 }
