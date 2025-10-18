@@ -10,6 +10,9 @@ public class RoutesController {
     // /routes/shortest (Dijkstra)
     @GetMapping("/shortest")
     public ResponseEntity<String> shortestRoute() {
+        // Implementación del algoritmo de Dijkstra para encontrar la ruta más corta
+
+
         return ResponseEntity.ok("TODO: Dijkstra shortest path");
     }
 
