@@ -161,7 +161,7 @@ Ejemplo de respuesta:
 Nombre | Legajo   
 --------|----------
 Daniela Melian | 198423   
-Lucas Vitale | [Legajo] 
+Lucas Vitale | 1192520 
 Camila Di Laudo| 1193552
 
 ---
