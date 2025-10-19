@@ -1,10 +1,13 @@
 package com.programacion3.adoptme.service;
-
+import org.springframework.stereotype.Service;
 import java.util.*;
 /*
      Minimal Dijkstra que usa PriorityQueue y devuelve costo + camino.
      Entrada: colección de aristas dirigidas/indirectas (Edge), ids de nodo como String.
-    */public class ShortestPathService {
+
+*/
+@Service
+public class ShortestPathService {
 
         public static class Edge {
             public final String from;

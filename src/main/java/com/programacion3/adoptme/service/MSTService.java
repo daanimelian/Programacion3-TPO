@@ -1,11 +1,15 @@
 package com.programacion3.adoptme.service;
 
+import org.springframework.stereotype.Service;
+
 import java.util.*;
+
 
 /*
  Kruskal simple que opera sobre un subconjunto de nodos (p. ej. shelters/hubs)
  y aristas filtradas por tipo "NEAR". Devuelve lista de aristas del MST y costo total.
 */
+@Service
 public class MSTService {
 
     public static class Edge {

@@ -3,11 +3,15 @@ package com.programacion3.adoptme.service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+
+
 
 /*
  Scorer simple: calcula score por perro según criterios (children/garden/energy/size),
  ordena por score descendente y asigna hasta maxDogs o presupuesto.
 */
+@Service
 public class ScorerService {
     public static class Dog {
         public final String id;
