@@ -1,4 +1,6 @@
-/* import java.util.Comparator;
+package com.programacion3.adoptme.service;
+
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import com.programacion3.adoptme.domain.Dog;
@@ -27,6 +29,3 @@ public class SortService {
         dogs.sort(comparator); // usa MergeSort interno de Java
     }
 }
-
-
- */
