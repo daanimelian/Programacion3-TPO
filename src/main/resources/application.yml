@@ -1,9 +1,12 @@
 spring:
   neo4j:
-    uri: bolt://localhost:7687   # poné el puerto que dejes en neo4j.conf
+    uri: bolt://localhost:7687
     authentication:
       username: neo4j
-      password: neo4j123         # tiene que coincidir con tu DB
-  data:
-    neo4j:
-      database: neo4j            # si tu DB se llama distinto, cámbialo
+      password: neo4j123
+    data:
+      neo4j:
+        database: neo4j
+
+server:
+  port: 8080
