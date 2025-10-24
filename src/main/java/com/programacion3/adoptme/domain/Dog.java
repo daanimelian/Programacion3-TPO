@@ -17,4 +17,16 @@ public class Dog {
     private Boolean goodWithKids;
     private Boolean specialNeeds;
     private Integer priority;  // Para priorización de adopción
+
+    public Integer getWeight() {
+        return this.weightKg;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
 }
