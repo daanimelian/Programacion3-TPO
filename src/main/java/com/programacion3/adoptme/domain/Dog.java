@@ -18,6 +18,8 @@ public class Dog {
     private Boolean specialNeeds;
     private Integer priority;  // Para priorización de adopción
 
+    public Integer getWeight() {
+        return this.weightKg;
     public String getId() {
         return id;
     }
