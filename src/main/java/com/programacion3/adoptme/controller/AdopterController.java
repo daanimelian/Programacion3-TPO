@@ -1,7 +1,7 @@
 package com.programacion3.adoptme.controller;
 
 import com.programacion3.adoptme.domain.Adopter;
-import com.programacion3.adoptme.repo.AdopterRepository; // usa 'repo' si ese es tu package
+import com.programacion3.adoptme.repo.AdopterRepository; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

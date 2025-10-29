@@ -1,3 +1,4 @@
+
 package com.programacion3.adoptme.domain;
 
 import org.springframework.data.neo4j.core.schema.Id;
