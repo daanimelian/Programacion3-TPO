@@ -1,6 +1,7 @@
 package com.programacion3.adoptme.controller;
 
 import com.programacion3.adoptme.domain.Dog;
+
 import com.programacion3.adoptme.exception.ResourceNotFoundException;
 import com.programacion3.adoptme.repo.AdopterRepository;
 import com.programacion3.adoptme.repo.DogRepository;
@@ -93,7 +94,7 @@ public class AdoptionsController {
         var result = backtrackingService.assignDogs(adopter, allDogs);
 
         List<AssignedDog> assigned = result.getAssigned().stream()
-                .map(d -> new AssignedDog(d.getId(), d.getName(), backtrackingService.estimateCost(d)))
+                .map(d -> new AssignedDog(d.getId(), d.getName(), estimateCost(d)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new AdoptionResponse(
