@@ -4,6 +4,7 @@ import com.programacion3.adoptme.domain.Dog;
 import com.programacion3.adoptme.exception.ResourceNotFoundException;
 import com.programacion3.adoptme.repo.AdopterRepository;
 import com.programacion3.adoptme.repo.DogRepository;
+import com.programacion3.adoptme.service.BacktrackingService;
 import com.programacion3.adoptme.service.ScorerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class AdoptionsController {
     private final AdopterRepository adopterRepository;
     private final DogRepository dogRepository;
     private final ScorerService scorerService;
+    private final BacktrackingService backtrackingService;
 
     /**
      * Algoritmo Greedy: Asigna perros a un adoptante maximizando el score
@@ -27,18 +29,14 @@ public class AdoptionsController {
      * GET /adoptions/greedy?adopterId=P1
      */
     @GetMapping("/greedy")
-    public ResponseEntity<GreedyResponse> greedyAdoption(
-            @RequestParam String adopterId
-    ) {
-        // Buscar adoptante
+    public ResponseEntity<AdoptionResponse> greedyAdoption(@RequestParam String adopterId) {
         var adopter = adopterRepository.findById(adopterId)
                 .orElseThrow(() -> new ResourceNotFoundException("Adopter not found: " + adopterId));
 
-        // Obtener todos los perros disponibles
         List<Dog> allDogs = dogRepository.findAll();
 
         if (allDogs.isEmpty()) {
-            return ResponseEntity.ok(new GreedyResponse(
+            return ResponseEntity.ok(new AdoptionResponse(
                     "No dogs available for adoption",
                     adopterId,
                     adopter.getName(),
@@ -48,19 +46,17 @@ public class AdoptionsController {
             ));
         }
 
-        // Convertir a formato del ScorerService
         List<ScorerService.Dog> candidates = allDogs.stream()
                 .map(d -> new ScorerService.Dog(
                         d.getId(),
                         d.getGoodWithKids() != null && d.getGoodWithKids(),
-                        "LARGE".equalsIgnoreCase(d.getSize()), // perros grandes necesitan jardín
+                        "LARGE".equalsIgnoreCase(d.getSize()),
                         mapEnergy(d.getEnergy()),
                         mapSize(d.getSize()),
-                        estimateCost(d) // costo estimado por adopción
+                        estimateCost(d)
                 ))
                 .collect(Collectors.toList());
 
-        // Ejecutar algoritmo Greedy
         var result = scorerService.scoreAndAssign(
                 candidates,
                 adopter.getHasKids() != null && adopter.getHasKids(),
@@ -69,12 +65,11 @@ public class AdoptionsController {
                 adopter.getBudget() != null ? adopter.getBudget() : 20000.0
         );
 
-        // Formatear respuesta
         List<AssignedDog> assigned = result.assigned.stream()
                 .map(d -> new AssignedDog(d.id, findDogName(allDogs, d.id), d.cost))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new GreedyResponse(
+        return ResponseEntity.ok(new AdoptionResponse(
                 "Greedy algorithm executed successfully",
                 adopterId,
                 adopter.getName(),
@@ -85,12 +80,30 @@ public class AdoptionsController {
     }
 
     /**
-     * Backtracking - TODO: Implementar en Fase 2
-     * Asigna perros considerando TODAS las restricciones posibles
+     * Backtracking: Asigna perros considerando TODAS las restricciones posibles
+     * GET /adoptions/constraints/backtracking?adopterId=P1
      */
     @GetMapping("/constraints/backtracking")
-    public ResponseEntity<String> backtrackingAdoption() {
-        return ResponseEntity.ok("TODO: Backtracking adoption constraints");
+    public ResponseEntity<AdoptionResponse> backtrackingAdoption(@RequestParam String adopterId) {
+        var adopter = adopterRepository.findById(adopterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Adopter not found: " + adopterId));
+
+        List<Dog> allDogs = dogRepository.findAll();
+
+        var result = backtrackingService.assignDogs(adopter, allDogs);
+
+        List<AssignedDog> assigned = result.getAssigned().stream()
+                .map(d -> new AssignedDog(d.getId(), d.getName(), backtrackingService.estimateCost(d)))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new AdoptionResponse(
+                "Backtracking algorithm executed successfully",
+                adopterId,
+                adopter.getName(),
+                assigned,
+                result.getTotalScore(),
+                result.getTotalCost()
+        ));
     }
 
     // Métodos auxiliares
@@ -115,7 +128,6 @@ public class AdoptionsController {
     }
 
     private double estimateCost(Dog dog) {
-        // Costo base + extra por tamaño y necesidades especiales
         double baseCost = 5000.0;
         double sizeCost = mapSize(dog.getSize()) * 2000.0;
         double specialNeedsCost = (dog.getSpecialNeeds() != null && dog.getSpecialNeeds()) ? 5000.0 : 0.0;
@@ -131,7 +143,7 @@ public class AdoptionsController {
     }
 
     // DTOs
-    record GreedyResponse(
+    record AdoptionResponse(
             String message,
             String adopterId,
             String adopterName,
