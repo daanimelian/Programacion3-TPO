@@ -4,9 +4,13 @@ import com.programacion3.adoptme.dto.PathResponse;
 import com.programacion3.adoptme.dto.TspResponse;
 import com.programacion3.adoptme.service.GraphLoader;
 import com.programacion3.adoptme.service.ShortestPathService;
+import com.programacion3.adoptme.service.TspService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/routes")
@@ -15,6 +19,7 @@ public class RoutesController {
 
     private final ShortestPathService shortestPathService;
     private final GraphLoader graphLoader;
+    private final TspService tspService;
 
     /**
      * Dijkstra - Encuentra el camino más corto considerando distancias
@@ -63,15 +68,22 @@ public class RoutesController {
      * GET /routes/tsp/bnb?nodes=A,B,C,H
      */
     @GetMapping("/tsp/bnb")
+    
     public ResponseEntity<TspResponse> tspBranchBound(
-            @RequestParam(required = false) String nodes
+            @RequestParam String nodes
     ) {
-        // TODO: Implementar TSP con Branch & Bound
-        return ResponseEntity.ok(
-                TspResponse.builder()
-                        .route(null)
-                        .totalDistanceKm(0)
-                        .build()
-        );
+        if (nodes == null || nodes.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Parsear los nodos de la query string
+        List<String> nodeList = Arrays.stream(nodes.split(","))
+                .map(String::trim)
+                .toList();
+
+        // Ejecutar algoritmo Branch & Bound
+        TspResponse result = tspService.solveTsp(nodeList);
+
+        return ResponseEntity.ok(result);
     }
 }
