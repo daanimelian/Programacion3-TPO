@@ -7,7 +7,7 @@ El proyecto incluye lógica de grafos para encontrar caminos entre refugios (BFS
 
 ## 🚀 Tecnologías utilizadas
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot 3.5.x**
 - **Neo4j 5.x (base de datos de grafos)**
 - **Maven Wrapper (`mvnw`)**
@@ -44,7 +44,7 @@ java -version
 mvn -version
 ```
 Si no los tenés:
-- Java 17: https://adoptium.net
+- Java 21: https://adoptium.net
 - Maven: https://maven.apache.org/download.cgi
 
 ---
