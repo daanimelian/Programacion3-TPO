@@ -26,7 +26,7 @@ public class SortService {
                 throw new IllegalArgumentException("Criterio de orden no válido: " + criteria);
         }
 
-        dogs.sort(comparator); // usa MergeSort interno de Java
+        dogs.sort(comparator); // usa TimSort (híbrido MergeSort + InsertionSort)
     }
 }
 

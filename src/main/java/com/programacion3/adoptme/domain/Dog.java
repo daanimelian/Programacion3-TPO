@@ -18,41 +18,8 @@ public class Dog {
     private Boolean specialNeeds;
     private Integer priority;  // Para priorización de adopción
 
+    // Método personalizado para mantener compatibilidad con código existente
     public Integer getWeight() {
         return this.weightKg;
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public Integer getWeight() {
-        return weightKg;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public String getEnergy() {
-        return energy;
-    }
-
-    public Boolean getGoodWithKids() {
-        return goodWithKids;
-    }
-
-    public Boolean getSpecialNeeds() {
-        return specialNeeds;
-    }
-
-    public Integer getPriority() {
-        return priority;
     }
 }
