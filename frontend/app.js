@@ -229,8 +229,8 @@ async function executeDijkstra() {
         let html = '<h4>✅ Camino Más Corto Encontrado (Dijkstra)</h4>';
         html += `<div class="result-item">
             <strong>Camino:</strong> ${result.path.join(' → ')}<br>
-            <strong>Distancia Total:</strong> ${result.totalDistance} km<br>
-            <strong>Número de Saltos:</strong> ${result.path.length - 1}
+            <strong>Distancia Total:</strong> ${result.totalWeight} km<br>
+            <strong>Número de Saltos:</strong> ${result.steps}
         </div>`;
 
         showResult(resultBox, 'success', '', html);
@@ -257,9 +257,9 @@ async function executeTSP() {
 
         let html = '<h4>✅ Ruta Óptima TSP Encontrada (Branch & Bound)</h4>';
         html += `<div class="result-item">
-            <strong>Ruta Óptima:</strong> ${result.tour.join(' → ')}<br>
-            <strong>Distancia Total:</strong> ${result.totalDistance} km<br>
-            <strong>Número de Refugios:</strong> ${result.tour.length}<br>
+            <strong>Ruta Óptima:</strong> ${result.route ? result.route.join(' → ') : 'N/A'}<br>
+            <strong>Distancia Total:</strong> ${result.totalDistanceKm || 'N/A'} km<br>
+            <strong>Número de Refugios:</strong> ${result.route ? result.route.length : 0}<br>
             <strong>Nodos Explorados:</strong> ${result.nodesExplored || 'N/A'}
         </div>`;
 
@@ -408,27 +408,33 @@ async function executeSort() {
         hideLoading();
 
         const algorithmName = algorithm === 'mergesort' ? 'MergeSort' : 'QuickSort';
+        const dogs = result.dogs || [];
 
         let html = `<h4>✅ Perros Ordenados (${algorithmName})</h4>`;
         html += `<div class="result-item">
-            <strong>Criterio:</strong> ${criteria}<br>
-            <strong>Total de Perros:</strong> ${result.length}
+            <strong>Criterio:</strong> ${result.criteria || criteria}<br>
+            <strong>Algoritmo:</strong> ${result.algorithm || algorithmName}<br>
+            <strong>Total de Perros:</strong> ${dogs.length}
         </div>`;
 
-        html += '<h4>Lista Ordenada:</h4>';
-        result.forEach((perro, index) => {
-            let value;
-            if (criteria === 'priority') value = perro.priority;
-            else if (criteria === 'age') value = perro.age;
-            else if (criteria === 'weight') value = perro.weight;
+        if (dogs.length > 0) {
+            html += '<h4>Lista Ordenada:</h4>';
+            dogs.forEach((perro, index) => {
+                let value;
+                if (criteria === 'priority') value = perro.priority;
+                else if (criteria === 'age') value = perro.age;
+                else if (criteria === 'weight') value = perro.weight;
 
-            html += `<div class="result-item">
-                <strong>${index + 1}. ${perro.name}</strong><br>
-                ${criteria.charAt(0).toUpperCase() + criteria.slice(1)}: ${value} |
-                Tamaño: ${perro.size} |
-                Peso: ${perro.weight}kg
-            </div>`;
-        });
+                html += `<div class="result-item">
+                    <strong>${index + 1}. ${perro.name}</strong><br>
+                    ${criteria.charAt(0).toUpperCase() + criteria.slice(1)}: ${value} |
+                    Tamaño: ${perro.size} |
+                    Peso: ${perro.weight}kg
+                </div>`;
+            });
+        } else {
+            html += '<p>No hay perros para ordenar</p>';
+        }
 
         showResult(resultBox, 'success', '', html);
     } catch (error) {
