@@ -29,3 +29,6 @@ public class SortService {
         dogs.sort(comparator); // usa MergeSort interno de Java
     }
 }
+
+
+
