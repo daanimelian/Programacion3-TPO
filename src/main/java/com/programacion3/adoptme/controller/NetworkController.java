@@ -19,12 +19,14 @@ public class NetworkController {
     private final GraphLoader graphLoader;
 
     /**
-     * Minimum Spanning Tree usando Kruskal
+     * Minimum Spanning Tree usando Kruskal o Prim
      * Conecta todos los refugios con la menor distancia total
-     * GET /network/mst
+     * GET /network/mst?algorithm=kruskal|prim (default: kruskal)
      */
     @GetMapping("/mst")
-    public ResponseEntity<MSTResponse> mst() {
+    public ResponseEntity<MSTResponse> mst(
+            @RequestParam(defaultValue = "kruskal") String algorithm
+    ) {
         // Cargar todos los shelters
         var shelterIds = graphLoader.loadAllShelterIds();
 
@@ -32,15 +34,25 @@ public class NetworkController {
             return ResponseEntity.ok(new MSTResponse(
                     "No shelters found",
                     List.of(),
-                    0.0
+                    0.0,
+                    algorithm
             ));
         }
 
         // Cargar aristas
         var edges = graphLoader.loadMSTEdges();
 
-        // Ejecutar Kruskal
-        var result = mstService.compute(shelterIds, edges);
+        // Ejecutar algoritmo seleccionado
+        MSTService.MSTResult result;
+        String algorithmUsed;
+
+        if ("prim".equalsIgnoreCase(algorithm)) {
+            result = mstService.computeWithPrim(shelterIds, edges);
+            algorithmUsed = "Prim";
+        } else {
+            result = mstService.compute(shelterIds, edges);
+            algorithmUsed = "Kruskal";
+        }
 
         // Formatear respuesta
         List<EdgeDTO> formattedEdges = result.edges.stream()
@@ -48,9 +60,10 @@ public class NetworkController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new MSTResponse(
-                "MST computed using Kruskal's algorithm",
+                "MST computed using " + algorithmUsed + "'s algorithm",
                 formattedEdges,
-                result.totalWeight
+                result.totalWeight,
+                algorithmUsed
         ));
     }
 
@@ -58,7 +71,8 @@ public class NetworkController {
     record MSTResponse(
             String message,
             List<EdgeDTO> edges,
-            double totalWeight
+            double totalWeight,
+            String algorithm
     ) {}
 
     record EdgeDTO(

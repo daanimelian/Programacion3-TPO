@@ -15,13 +15,6 @@ import java.util.Map;
 @RequestMapping("/dogs")
 @RequiredArgsConstructor
 public class DogController {
-    private final DogRepository repo;
-    private final SortService sortService;
-    public DogController(DogRepository repo) {
-        this.repo = repo;
-        this.sortService = new SortService();
-    }
-
     private final DogRepository dogRepository;
     private final SortService sortService;
 
@@ -31,27 +24,19 @@ public class DogController {
      */
     @GetMapping
     public List<Dog> all() {
-        return repo.findAll();
-    }
-    
-    @GetMapping("/sort")
-    public ResponseEntity<List<Dog>> sortDogs() {
-        String criteria = "priority";              // criterio de orden por defecto
-        List<Dog> dogs = repo.findAll();           // trae todos de la base
-        sortService.sortDogs(dogs, criteria);      // los ordena
-        return ResponseEntity.ok(dogs);
         return dogRepository.findAll();
     }
 
     /**
-     * Ordena perros usando MergeSort (Divide y Vencerás)
-     * GET /dogs/sort?criteria=priority
-     * GET /dogs/sort?criteria=age
+     * Ordena perros usando MergeSort o QuickSort (Divide y Vencerás)
+     * GET /dogs/sort?criteria=priority&algorithm=quicksort
+     * GET /dogs/sort?criteria=age&algorithm=mergesort
      * GET /dogs/sort?criteria=weight
      */
     @GetMapping("/sort")
     public ResponseEntity<?> sortDogs(
-            @RequestParam(defaultValue = "priority") String criteria
+            @RequestParam(defaultValue = "priority") String criteria,
+            @RequestParam(defaultValue = "mergesort") String algorithm
     ) {
         try {
             // Obtener todos los perros
@@ -61,16 +46,20 @@ public class DogController {
                 return ResponseEntity.ok(new SortResponse(
                         "No dogs found",
                         criteria,
+                        algorithm,
                         List.of()
                 ));
             }
 
-            // Ordenar usando el servicio
-            sortService.sortDogs(dogs, criteria);
+            // Ordenar usando el servicio y algoritmo seleccionado
+            sortService.sortDogs(dogs, criteria, algorithm);
+
+            String algorithmName = "quicksort".equalsIgnoreCase(algorithm) ? "QuickSort" : "MergeSort";
 
             return ResponseEntity.ok(new SortResponse(
-                    "Dogs sorted by " + criteria + " using MergeSort",
+                    "Dogs sorted by " + criteria + " using " + algorithmName,
                     criteria,
+                    algorithm,
                     dogs
             ));
 
@@ -78,7 +67,8 @@ public class DogController {
             return ResponseEntity.badRequest()
                     .body(Map.of(
                             "error", e.getMessage(),
-                            "validCriteria", List.of("priority", "age", "weight")
+                            "validCriteria", List.of("priority", "age", "weight"),
+                            "validAlgorithms", List.of("mergesort", "quicksort")
                     ));
         }
     }
@@ -87,6 +77,7 @@ public class DogController {
     record SortResponse(
             String message,
             String criteria,
+            String algorithm,
             List<Dog> dogs
     ) {}
 }
