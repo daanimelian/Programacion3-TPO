@@ -271,15 +271,17 @@ async function executeTSP() {
 }
 
 function displayPathResult(resultBox, result, algorithm) {
-    if (result.reachable) {
+    if (result.exists) {
         let html = `<h4>✅ Camino Encontrado (${algorithm})</h4>`;
         html += `<div class="result-item">
             <strong>Camino:</strong> ${result.path.join(' → ')}<br>
-            <strong>Número de Saltos:</strong> ${result.path.length - 1}
+            <strong>Número de Saltos:</strong> ${result.steps}
         </div>`;
         showResult(resultBox, 'success', '', html);
     } else {
-        showResult(resultBox, 'error', 'No Alcanzable', `No existe un camino entre ${result.from} y ${result.to}`);
+        const from = result.path && result.path.length > 0 ? result.path[0] : 'origen';
+        const to = 'destino';
+        showResult(resultBox, 'error', 'No Alcanzable', `No existe un camino accesible con ${algorithm}`);
     }
 }
 
@@ -329,17 +331,17 @@ async function executeGreedy() {
         let html = '<h4>✅ Selección Voraz Completada</h4>';
         html += `<div class="result-item">
             <strong>Adoptante:</strong> ${result.adopterName || adopterId}<br>
-            <strong>Perros Seleccionados:</strong> ${result.selectedDogs ? result.selectedDogs.length : 0}
+            <strong>Perros Seleccionados:</strong> ${result.assignedDogs ? result.assignedDogs.length : 0}<br>
+            <strong>Score Total:</strong> ${result.totalScore ? result.totalScore.toFixed(2) : 'N/A'}<br>
+            <strong>Costo Total:</strong> $${result.totalCost ? result.totalCost.toFixed(2) : 'N/A'}
         </div>`;
 
-        if (result.selectedDogs && result.selectedDogs.length > 0) {
+        if (result.assignedDogs && result.assignedDogs.length > 0) {
             html += '<h4>Perros Asignados:</h4>';
-            result.selectedDogs.forEach(dog => {
+            result.assignedDogs.forEach(dog => {
                 html += `<div class="result-item">
-                    <strong>${dog.name}</strong><br>
-                    Score: ${dog.score ? dog.score.toFixed(2) : 'N/A'} |
-                    Tamaño: ${dog.size} |
-                    Peso: ${dog.weight}kg
+                    <strong>${dog.dogName || dog.dogId}</strong><br>
+                    Costo: $${dog.cost ? dog.cost.toFixed(2) : 'N/A'}
                 </div>`;
             });
         }
@@ -360,19 +362,28 @@ async function executeBacktracking() {
         hideLoading();
 
         let html = '<h4>✅ Asignación por Backtracking Completada</h4>';
+        html += `<div class="result-item">
+            <strong>Score Total:</strong> ${result.totalScore ? result.totalScore.toFixed(2) : 'N/A'}
+        </div>`;
 
-        if (result.assignments && result.assignments.length > 0) {
-            html += `<div class="result-item">
-                <strong>Total de Asignaciones:</strong> ${result.assignments.length}
-            </div>`;
+        if (result.assignments) {
+            const assignmentsList = Object.values(result.assignments);
 
-            result.assignments.forEach(assignment => {
+            if (assignmentsList.length > 0) {
                 html += `<div class="result-item">
-                    <strong>Adoptante:</strong> ${assignment.adopterName}<br>
-                    <strong>Perros Asignados:</strong> ${assignment.dogs.map(d => d.name).join(', ')}<br>
-                    <strong>Presupuesto Usado:</strong> $${assignment.totalCost || 'N/A'}
+                    <strong>Total de Asignaciones:</strong> ${assignmentsList.length}
                 </div>`;
-            });
+
+                assignmentsList.forEach(assignment => {
+                    html += `<div class="result-item">
+                        <strong>Adoptante:</strong> ${assignment.adopterName}<br>
+                        <strong>Perros Asignados:</strong> ${assignment.assignedDogs.map(d => d.dogName).join(', ')}<br>
+                        <strong>Cantidad:</strong> ${assignment.assignedDogs.length} perro(s)
+                    </div>`;
+                });
+            } else {
+                html += '<p>No se encontraron asignaciones válidas</p>';
+            }
         } else {
             html += '<p>No se encontraron asignaciones válidas</p>';
         }
@@ -444,8 +455,8 @@ async function executeKnapsack() {
 
         let html = '<h4>✅ Transporte Optimizado (Knapsack DP)</h4>';
         html += `<div class="result-item">
-            <strong>Capacidad del Vehículo:</strong> ${capacity} kg<br>
-            <strong>Peso Total Usado:</strong> ${result.totalWeight || 0} kg<br>
+            <strong>Capacidad del Vehículo:</strong> ${result.vehicleCapacityKg || capacity} kg<br>
+            <strong>Peso Total Usado:</strong> ${result.totalWeightKg || 0} kg<br>
             <strong>Prioridad Total Maximizada:</strong> ${result.totalPriority || 0}<br>
             <strong>Perros Transportados:</strong> ${result.selectedDogs ? result.selectedDogs.length : 0}
         </div>`;
@@ -455,9 +466,9 @@ async function executeKnapsack() {
             result.selectedDogs.forEach(dog => {
                 html += `<div class="result-item">
                     <strong>${dog.name}</strong><br>
-                    Peso: ${dog.weight}kg |
+                    Peso: ${dog.weightKg}kg |
                     Prioridad: ${dog.priority} |
-                    Relación P/W: ${(dog.priority / dog.weight).toFixed(2)}
+                    Relación P/W: ${(dog.priority / dog.weightKg).toFixed(2)}
                 </div>`;
             });
         }
