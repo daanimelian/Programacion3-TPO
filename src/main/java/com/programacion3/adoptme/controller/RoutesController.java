@@ -115,8 +115,8 @@ public class RoutesController {
         // Convertir al formato del TSPService
         List<com.programacion3.adoptme.service.TSPService.Edge> edges = rawEdges.stream()
                 .map(e -> new com.programacion3.adoptme.service.TSPService.Edge(
-                        e.a,
-                        e.b,
+                        e.from,
+                        e.to,
                         e.weight
                 ))
                 .toList();
