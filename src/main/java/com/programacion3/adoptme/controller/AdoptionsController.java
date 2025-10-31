@@ -20,6 +20,7 @@ public class AdoptionsController {
     private final AdopterRepository adopterRepository;
     private final DogRepository dogRepository;
     private final ScorerService scorerService;
+    private final com.programacion3.adoptme.service.BacktrackingService backtrackingService;
 
     /**
      * Algoritmo Greedy: Asigna perros a un adoptante maximizando el score
@@ -85,12 +86,98 @@ public class AdoptionsController {
     }
 
     /**
-     * Backtracking - TODO: Implementar en Fase 2
-     * Asigna perros considerando TODAS las restricciones posibles
+     * Algoritmo Backtracking: Asigna múltiples perros a múltiples adoptantes
+     * respetando TODAS las restricciones y maximizando satisfacción total.
+     *
+     * Considera restricciones de:
+     * - Presupuesto
+     * - Capacidad máxima de perros
+     * - Compatibilidad con niños
+     * - Necesidad de jardín
+     * - Preferencia de energía
+     *
+     * GET /adoptions/constraints/backtracking
      */
     @GetMapping("/constraints/backtracking")
-    public ResponseEntity<String> backtrackingAdoption() {
-        return ResponseEntity.ok("TODO: Backtracking adoption constraints");
+    public ResponseEntity<BacktrackingResponse> backtrackingAdoption() {
+        // Obtener todos los perros y adoptantes
+        List<Dog> allDogs = dogRepository.findAll();
+        var allAdopters = adopterRepository.findAll();
+
+        if (allDogs.isEmpty()) {
+            return ResponseEntity.ok(new BacktrackingResponse(
+                    "No dogs available for adoption",
+                    Map.of(),
+                    0.0
+            ));
+        }
+
+        if (allAdopters.isEmpty()) {
+            return ResponseEntity.ok(new BacktrackingResponse(
+                    "No adopters available",
+                    Map.of(),
+                    0.0
+            ));
+        }
+
+        // Convertir perros al formato del servicio
+        List<com.programacion3.adoptme.service.BacktrackingService.Dog> dogs = allDogs.stream()
+                .map(d -> new com.programacion3.adoptme.service.BacktrackingService.Dog(
+                        d.getId(),
+                        d.getGoodWithKids() != null && d.getGoodWithKids(),
+                        "LARGE".equalsIgnoreCase(d.getSize()),
+                        mapEnergy(d.getEnergy()),
+                        estimateCost(d)
+                ))
+                .toList();
+
+        // Convertir adoptantes al formato del servicio
+        List<com.programacion3.adoptme.service.BacktrackingService.Adopter> adopters = allAdopters.stream()
+                .map(a -> new com.programacion3.adoptme.service.BacktrackingService.Adopter(
+                        a.getId(),
+                        a.getName(),
+                        a.getHasKids() != null && a.getHasKids(),
+                        a.getHasYard() != null && a.getHasYard(),
+                        a.getMaxDogs() != null ? a.getMaxDogs() : 1,
+                        a.getBudget() != null ? a.getBudget() : 20000.0,
+                        5 // energía preferida default (media)
+                ))
+                .toList();
+
+        // Ejecutar algoritmo de backtracking
+        var result = backtrackingService.findBestAssignment(dogs, adopters);
+
+        // Formatear respuesta
+        Map<String, AdopterAssignment> assignments = new java.util.HashMap<>();
+
+        for (var adopter : allAdopters) {
+            List<String> dogIds = result.assignments.getOrDefault(adopter.getId(), List.of());
+
+            if (!dogIds.isEmpty()) {
+                List<AssignedDog> assignedDogs = dogIds.stream()
+                        .map(dogId -> {
+                            String dogName = findDogName(allDogs, dogId);
+                            double cost = estimateCost(allDogs.stream()
+                                    .filter(d -> d.getId().equals(dogId))
+                                    .findFirst()
+                                    .orElse(null));
+                            return new AssignedDog(dogId, dogName, cost);
+                        })
+                        .toList();
+
+                assignments.put(adopter.getId(), new AdopterAssignment(
+                        adopter.getId(),
+                        adopter.getName(),
+                        assignedDogs
+                ));
+            }
+        }
+
+        return ResponseEntity.ok(new BacktrackingResponse(
+                "Backtracking algorithm completed successfully",
+                assignments,
+                result.totalScore
+        ));
     }
 
     // Métodos auxiliares
@@ -138,6 +225,18 @@ public class AdoptionsController {
             List<AssignedDog> assignedDogs,
             double totalScore,
             double totalCost
+    ) {}
+
+    record BacktrackingResponse(
+            String message,
+            Map<String, AdopterAssignment> assignments,
+            double totalScore
+    ) {}
+
+    record AdopterAssignment(
+            String adopterId,
+            String adopterName,
+            List<AssignedDog> assignedDogs
     ) {}
 
     record AssignedDog(
