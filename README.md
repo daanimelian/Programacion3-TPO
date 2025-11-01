@@ -120,8 +120,15 @@ Método | URL | Descripción
 GET | /ping | Verifica conexión
 GET | /shelters | Lista los refugios
 GET | /dogs | Lista los perros
+GET | /dogs/sort?criteria=priority&algorithm=mergesort | Ordena perros
 GET | /adopters | Lista los adoptantes
-GET | /graph/reachable?from=A&to=C | Ejecuta BFS entre refugios
+GET | /graph/reachable?from=A&to=C&method=bfs | Ejecuta BFS/DFS entre refugios
+GET | /routes/shortest?from=A&to=C | Calcula camino más corto (Dijkstra)
+GET | /routes/tsp/bnb?nodes=A,B,C | Calcula ruta TSP óptima
+GET | /network/mst?algorithm=kruskal | Calcula MST (Kruskal/Prim)
+GET | /adoptions/greedy?adopterId=P1 | Matching greedy de perros
+GET | /adoptions/constraints/backtracking | Asignación por backtracking
+GET | /transport/optimal-dp?capacityKg=50 | Optimización de transporte (Knapsack)
 
 Ejemplo de respuesta:
 
@@ -132,10 +139,81 @@ Ejemplo de respuesta:
 
 ---
 
+## 🎨 Frontend Web
+
+El proyecto incluye un **frontend web interactivo** ubicado en la carpeta `/frontend`.
+
+### Características
+- ✅ Interfaz moderna y responsiva (sin color violeta)
+- ✅ Dashboard con estadísticas en tiempo real
+- ✅ Prueba de todos los algoritmos implementados
+- ✅ Datos precargados para testing
+- ✅ Visualización clara de resultados
+
+### Cómo usar el Frontend
+
+1. **Iniciar el backend** (Spring Boot debe estar corriendo en `http://localhost:8080`)
+
+2. **Abrir el frontend** de alguna de estas formas:
+
+   **Opción A - Servidor HTTP Simple (Python):**
+   ```bash
+   cd frontend
+   python3 -m http.server 3000
+   ```
+   Luego abrir: http://localhost:3000
+
+   **Opción B - Directamente en el navegador:**
+   ```bash
+   cd frontend
+   # Abrir index.html con tu navegador preferido
+   ```
+
+   **Opción C - VS Code Live Server:**
+   - Instalar extensión "Live Server"
+   - Click derecho en `index.html` → "Open with Live Server"
+
+3. **Explorar las pestañas:**
+   - **Dashboard**: Ver refugios, perros y adoptantes
+   - **Rutas & Grafos**: BFS, DFS, Dijkstra, TSP
+   - **Redes & MST**: Kruskal, Prim
+   - **Matching**: Greedy, Backtracking
+   - **Ordenamiento**: MergeSort, QuickSort
+   - **Transporte**: Knapsack (Programación Dinámica)
+
+### Datos de Prueba Precargados
+
+El sistema incluye datos de prueba en Neo4j:
+- **4 Refugios**: A, B, C, H (Hub)
+- **6 Perros**: Luna, Toto, Rex, Miranda, Perchita, Lina
+- **3 Adoptantes**: Camila (P1), Lucas (P2), Daniela (P3)
+
+Todos los algoritmos pueden probarse directamente desde la interfaz web.
+
+---
+
 ## 🧠 Algoritmos implementados
 
-- BFS (Breadth-First Search): encuentra el camino más corto en cantidad de saltos entre refugios.
-- Próximamente: Dijkstra (camino mínimo ponderado por distancia o tiempo).
+### Algoritmos de Grafos
+- **BFS (Breadth-First Search)**: Encuentra caminos entre refugios por búsqueda en anchura
+- **DFS (Depth-First Search)**: Encuentra caminos entre refugios por búsqueda en profundidad
+- **Dijkstra**: Calcula el camino más corto considerando distancias ponderadas
+- **TSP Branch & Bound**: Resuelve el Problema del Viajante para encontrar la ruta óptima
+
+### Algoritmos de Redes
+- **Kruskal**: Calcula el Árbol de Expansión Mínima (MST)
+- **Prim**: Calcula el MST usando un enfoque alternativo
+
+### Algoritmos de Asignación
+- **Greedy**: Selección voraz de perros para un adoptante basado en compatibilidad
+- **Backtracking**: Asignación de múltiples perros a múltiples adoptantes con restricciones
+
+### Algoritmos de Ordenamiento
+- **MergeSort (TimSort)**: Ordenamiento eficiente de perros por prioridad, edad o peso
+- **QuickSort**: Ordenamiento divide y conquista
+
+### Programación Dinámica
+- **Knapsack 0/1**: Optimiza el transporte de perros maximizando prioridad dentro de capacidad
 
 ---
 

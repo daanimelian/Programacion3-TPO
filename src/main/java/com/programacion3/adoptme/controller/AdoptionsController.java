@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -148,7 +150,7 @@ public class AdoptionsController {
         var result = backtrackingService.findBestAssignment(dogs, adopters);
 
         // Formatear respuesta
-        Map<String, AdopterAssignment> assignments = new java.util.HashMap<>();
+        Map<String, AdopterAssignment> assignments = new HashMap<>();
 
         for (var adopter : allAdopters) {
             List<String> dogIds = result.assignments.getOrDefault(adopter.getId(), List.of());
