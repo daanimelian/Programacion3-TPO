@@ -170,6 +170,57 @@
             <section id="matching" class="tab-content">
                 <h2>Algoritmos de Matching</h2>
 
+                <!-- Cost & Score Calculation Explanation -->
+                <div class="info-section">
+                    <h3>💰 Cálculo del Costo de Adopción</h3>
+                    <div class="info-content">
+                        <p><strong>El costo de cada adopción se calcula según:</strong></p>
+                        <ul>
+                            <li><strong>Costo Base:</strong> $5,000</li>
+                            <li><strong>Costo por Tamaño:</strong>
+                                <ul>
+                                    <li>SMALL: +$2,000 (Total: $7,000)</li>
+                                    <li>MEDIUM: +$4,000 (Total: $9,000)</li>
+                                    <li>LARGE: +$6,000 (Total: $11,000)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Necesidades Especiales:</strong> +$5,000 adicionales</li>
+                        </ul>
+                        <p class="formula"><strong>Fórmula:</strong> Costo Total = Costo Base + Costo por Tamaño + Necesidades Especiales</p>
+                        <p class="example"><em>Ejemplo:</em> Un perro LARGE con necesidades especiales = $5,000 + $6,000 + $5,000 = <strong>$16,000</strong></p>
+                    </div>
+
+                    <h3>🎯 Cálculo del Score de Compatibilidad</h3>
+                    <div class="info-content">
+                        <p><strong>El score de compatibilidad considera 4 factores (máximo: 8.0 puntos):</strong></p>
+                        <ol>
+                            <li><strong>Compatibilidad con Niños (peso: 3.0):</strong>
+                                <br>+3.0 puntos si el adoptante tiene niños Y el perro es bueno con niños
+                            </li>
+                            <li><strong>Necesidad de Jardín (peso: 2.0):</strong>
+                                <br>+2.0 puntos si el adoptante tiene jardín Y el perro es LARGE (requiere espacio)
+                            </li>
+                            <li><strong>Nivel de Energía (peso: 2.0):</strong>
+                                <br>Preferencia por energía moderada (5/10). Score = 2.0 × (1 - |energía - 5| / 5)
+                                <ul>
+                                    <li>LOW (2): +0.8 puntos</li>
+                                    <li>MEDIUM (5): +2.0 puntos</li>
+                                    <li>HIGH (8): +0.8 puntos</li>
+                                </ul>
+                            </li>
+                            <li><strong>Tamaño (peso: 1.0):</strong>
+                                <br>Preferencia por perros pequeños. Score = 1.0 × (3 - tamaño) / 2
+                                <ul>
+                                    <li>SMALL: +1.0 puntos</li>
+                                    <li>MEDIUM: +0.5 puntos</li>
+                                    <li>LARGE: +0.0 puntos</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <p class="example"><em>Ejemplo:</em> Adoptante con niños y jardín + Perro SMALL, MEDIUM energy, bueno con niños = 3.0 + 0.0 + 2.0 + 1.0 = <strong>6.0 puntos</strong></p>
+                    </div>
+                </div>
+
                 <!-- Greedy -->
                 <div class="algorithm-section">
                     <h3>🎯 Greedy - Selección Voraz</h3>
