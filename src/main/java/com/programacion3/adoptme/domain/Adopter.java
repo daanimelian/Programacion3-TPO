@@ -14,4 +14,5 @@ public class Adopter {
     private Boolean hasYard;
     private Boolean hasKids;
     private Integer maxDogs;
+    private Integer preferredEnergy; // 1-10, nivel de energía preferido para los perros
 }

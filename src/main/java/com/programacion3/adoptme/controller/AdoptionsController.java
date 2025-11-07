@@ -122,32 +122,8 @@ public class AdoptionsController {
             ));
         }
 
-        // Convertir perros al formato del servicio
-        List<com.programacion3.adoptme.service.BacktrackingService.Dog> dogs = allDogs.stream()
-                .map(d -> new com.programacion3.adoptme.service.BacktrackingService.Dog(
-                        d.getId(),
-                        d.getGoodWithKids() != null && d.getGoodWithKids(),
-                        "LARGE".equalsIgnoreCase(d.getSize()),
-                        mapEnergy(d.getEnergy()),
-                        estimateCost(d)
-                ))
-                .toList();
-
-        // Convertir adoptantes al formato del servicio
-        List<com.programacion3.adoptme.service.BacktrackingService.Adopter> adopters = allAdopters.stream()
-                .map(a -> new com.programacion3.adoptme.service.BacktrackingService.Adopter(
-                        a.getId(),
-                        a.getName(),
-                        a.getHasKids() != null && a.getHasKids(),
-                        a.getHasYard() != null && a.getHasYard(),
-                        a.getMaxDogs() != null ? a.getMaxDogs() : 1,
-                        a.getBudget() != null ? a.getBudget() : 20000.0,
-                        5 // energía preferida default (media)
-                ))
-                .toList();
-
-        // Ejecutar algoritmo de backtracking
-        var result = backtrackingService.findBestAssignment(dogs, adopters);
+        // Ejecutar algoritmo de backtracking directamente con las entidades de dominio
+        var result = backtrackingService.findBestAssignment(allDogs, allAdopters);
 
         // Formatear respuesta
         Map<String, AdopterAssignment> assignments = new HashMap<>();

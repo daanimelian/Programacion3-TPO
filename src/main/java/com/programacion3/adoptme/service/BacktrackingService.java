@@ -1,5 +1,7 @@
 package com.programacion3.adoptme.service;
 
+import com.programacion3.adoptme.domain.Dog;
+import com.programacion3.adoptme.domain.Adopter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,49 +19,6 @@ import java.util.*;
 public class BacktrackingService {
 
     /**
-     * Información de un perro para asignación
-     */
-    public static class Dog {
-        public final String id;
-        public final boolean goodWithKids;
-        public final boolean needsGarden;
-        public final int energy;
-        public final double cost;
-
-        public Dog(String id, boolean goodWithKids, boolean needsGarden, int energy, double cost) {
-            this.id = id;
-            this.goodWithKids = goodWithKids;
-            this.needsGarden = needsGarden;
-            this.energy = energy;
-            this.cost = cost;
-        }
-    }
-
-    /**
-     * Información de un adoptante
-     */
-    public static class Adopter {
-        public final String id;
-        public final String name;
-        public final boolean hasKids;
-        public final boolean hasGarden;
-        public final int maxDogs;
-        public final double budget;
-        public final int preferredEnergy; // 1-10
-
-        public Adopter(String id, String name, boolean hasKids, boolean hasGarden,
-                       int maxDogs, double budget, int preferredEnergy) {
-            this.id = id;
-            this.name = name;
-            this.hasKids = hasKids;
-            this.hasGarden = hasGarden;
-            this.maxDogs = maxDogs;
-            this.budget = budget;
-            this.preferredEnergy = preferredEnergy;
-        }
-    }
-
-    /**
      * Asignación: adopterId -> lista de dogIds
      */
     public static class Assignment {
@@ -70,6 +29,51 @@ public class BacktrackingService {
             this.assignments = assignments;
             this.totalScore = totalScore;
         }
+    }
+
+    // ==================== Métodos Helper ====================
+
+    /**
+     * Determina si un perro necesita jardín basándose en su tamaño
+     */
+    private boolean needsGarden(Dog dog) {
+        return "LARGE".equalsIgnoreCase(dog.getSize());
+    }
+
+    /**
+     * Calcula el costo estimado de adopción de un perro
+     */
+    private double estimateCost(Dog dog) {
+        double baseCost = 5000.0;
+        double sizeCost = mapSize(dog.getSize()) * 2000.0;
+        double specialNeedsCost = (dog.getSpecialNeeds() != null && dog.getSpecialNeeds()) ? 5000.0 : 0.0;
+        return baseCost + sizeCost + specialNeedsCost;
+    }
+
+    /**
+     * Convierte el nivel de energía de String a int (1-10)
+     */
+    private int mapEnergyToInt(String energy) {
+        if (energy == null) return 5;
+        return switch (energy.toUpperCase()) {
+            case "LOW" -> 2;
+            case "MEDIUM" -> 5;
+            case "HIGH" -> 8;
+            default -> 5;
+        };
+    }
+
+    /**
+     * Mapea el tamaño del perro a un valor numérico
+     */
+    private int mapSize(String size) {
+        if (size == null) return 2;
+        return switch (size.toUpperCase()) {
+            case "SMALL" -> 1;
+            case "MEDIUM" -> 2;
+            case "LARGE" -> 3;
+            default -> 2;
+        };
     }
 
     /**
@@ -87,12 +91,12 @@ public class BacktrackingService {
         // Estado inicial: ningún perro asignado
         Map<String, List<String>> currentAssignment = new HashMap<>();
         for (Adopter a : adopters) {
-            currentAssignment.put(a.id, new ArrayList<>());
+            currentAssignment.put(a.getId(), new ArrayList<>());
         }
 
         Map<String, Double> currentCost = new HashMap<>();
         for (Adopter a : adopters) {
-            currentCost.put(a.id, 0.0);
+            currentCost.put(a.getId(), 0.0);
         }
 
         // Variables para la mejor solución encontrada
@@ -153,18 +157,19 @@ public class BacktrackingService {
             if (canAssign(dog, adopter, currentAssignment, currentCost)) {
                 // Calcular score de esta asignación
                 double score = calculateScore(dog, adopter);
+                double dogCost = estimateCost(dog);
 
                 // Hacer asignación (forward)
-                currentAssignment.get(adopter.id).add(dog.id);
-                currentCost.put(adopter.id, currentCost.get(adopter.id) + dog.cost);
+                currentAssignment.get(adopter.getId()).add(dog.getId());
+                currentCost.put(adopter.getId(), currentCost.get(adopter.getId()) + dogCost);
 
                 // Recursión
                 backtrack(dogIndex + 1, dogs, adopters, currentAssignment, currentCost,
                         currentScore + score, best);
 
                 // Deshacer asignación (backtrack)
-                currentAssignment.get(adopter.id).remove(currentAssignment.get(adopter.id).size() - 1);
-                currentCost.put(adopter.id, currentCost.get(adopter.id) - dog.cost);
+                currentAssignment.get(adopter.getId()).remove(currentAssignment.get(adopter.getId()).size() - 1);
+                currentCost.put(adopter.getId(), currentCost.get(adopter.getId()) - dogCost);
             }
         }
     }
@@ -178,23 +183,32 @@ public class BacktrackingService {
             Map<String, List<String>> currentAssignment,
             Map<String, Double> currentCost
     ) {
+        int maxDogs = adopter.getMaxDogs() != null ? adopter.getMaxDogs() : 1;
+        double budget = adopter.getBudget() != null ? adopter.getBudget() : 20000.0;
+        boolean hasKids = adopter.getHasKids() != null && adopter.getHasKids();
+        boolean hasYard = adopter.getHasYard() != null && adopter.getHasYard();
+
+        boolean dogGoodWithKids = dog.getGoodWithKids() != null && dog.getGoodWithKids();
+        double dogCost = estimateCost(dog);
+        boolean dogNeedsGarden = needsGarden(dog);
+
         // Restricción 1: No exceder capacidad máxima de perros
-        if (currentAssignment.get(adopter.id).size() >= adopter.maxDogs) {
+        if (currentAssignment.get(adopter.getId()).size() >= maxDogs) {
             return false;
         }
 
         // Restricción 2: No exceder presupuesto
-        if (currentCost.get(adopter.id) + dog.cost > adopter.budget) {
+        if (currentCost.get(adopter.getId()) + dogCost > budget) {
             return false;
         }
 
         // Restricción 3: Si el perro no es bueno con niños y el adoptante tiene niños, no asignar
-        if (adopter.hasKids && !dog.goodWithKids) {
+        if (hasKids && !dogGoodWithKids) {
             return false;
         }
 
         // Restricción 4: Si el perro necesita jardín y el adoptante no tiene, no asignar
-        if (dog.needsGarden && !adopter.hasGarden) {
+        if (dogNeedsGarden && !hasYard) {
             return false;
         }
 
@@ -207,18 +221,26 @@ public class BacktrackingService {
     private double calculateScore(Dog dog, Adopter adopter) {
         double score = 0.0;
 
+        boolean hasKids = adopter.getHasKids() != null && adopter.getHasKids();
+        boolean hasYard = adopter.getHasYard() != null && adopter.getHasYard();
+        int preferredEnergy = adopter.getPreferredEnergy() != null ? adopter.getPreferredEnergy() : 5;
+
+        boolean dogGoodWithKids = dog.getGoodWithKids() != null && dog.getGoodWithKids();
+        boolean dogNeedsGarden = needsGarden(dog);
+        int dogEnergy = mapEnergyToInt(dog.getEnergy());
+
         // +5 puntos si es compatible con niños y el adoptante tiene niños
-        if (adopter.hasKids && dog.goodWithKids) {
+        if (hasKids && dogGoodWithKids) {
             score += 5.0;
         }
 
         // +3 puntos si el perro necesita jardín y el adoptante tiene jardín
-        if (dog.needsGarden && adopter.hasGarden) {
+        if (dogNeedsGarden && hasYard) {
             score += 3.0;
         }
 
         // +0 a +5 puntos por compatibilidad de energía (menor diferencia = mejor)
-        int energyDiff = Math.abs(dog.energy - adopter.preferredEnergy);
+        int energyDiff = Math.abs(dogEnergy - preferredEnergy);
         score += Math.max(0, 5.0 - energyDiff);
 
         return score;
