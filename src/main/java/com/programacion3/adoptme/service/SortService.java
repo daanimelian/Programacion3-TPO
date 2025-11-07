@@ -73,8 +73,8 @@ public class SortService {
     private int compare(Dog a, Dog b, String criteria) {
         switch (criteria.toLowerCase()) {
             case "priority":
-                // Mayor prioridad primero (orden descendente)
-                return Integer.compare(b.getPriority(), a.getPriority());
+                // Orden ascendente (menor prioridad primero)
+                return Integer.compare(a.getPriority(), b.getPriority());
             case "age":
                 return Integer.compare(a.getAge(), b.getAge());
             case "weight":
@@ -99,7 +99,8 @@ public class SortService {
     private Comparator<Dog> getComparator(String criteria) {
         switch (criteria.toLowerCase()) {
             case "priority":
-                return Comparator.comparingInt(Dog::getPriority).reversed();
+                // Orden ascendente (menor prioridad primero)
+                return Comparator.comparingInt(Dog::getPriority);
             case "age":
                 return Comparator.comparingInt(Dog::getAge);
             case "weight":
