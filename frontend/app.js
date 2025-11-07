@@ -695,7 +695,7 @@ async function showGraphVisualization() {
             const data = await fetchAPI('/network/graph');
 
             if (!data.nodes || !data.edges) {
-                displayResult('graphContainer', 'Error: No se pudieron cargar los datos del grafo', false);
+                canvas.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;"><h3>❌ Error</h3><p>No se pudieron cargar los datos del grafo</p></div>';
                 return;
             }
 
@@ -825,7 +825,11 @@ async function showGraphVisualization() {
 
         } catch (error) {
             console.error('Error loading graph:', error);
-            displayResult('graphContainer', `Error al cargar el grafo: ${error.message}`, false);
+            canvas.innerHTML = `<div style="padding: 20px; text-align: center; color: #e74c3c;">
+                <h3>❌ Error al cargar el grafo</h3>
+                <p>${error.message}</p>
+                <p style="font-size: 0.9em; color: #7f8c8d;">Verifica que el servidor esté corriendo y reiniciado.</p>
+            </div>`;
         }
     } else {
         container.style.display = 'none';
