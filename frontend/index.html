@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdoptMe - Sistema de Adopción de Perros</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Cytoscape.js para visualización de grafos -->
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -213,6 +215,25 @@
             <!-- Network Algorithms Tab -->
             <section id="network" class="tab-content">
                 <h2>Algoritmos de Redes y MST</h2>
+
+                <!-- Graph Visualization -->
+                <div class="algorithm-section">
+                    <h3>🗺️ Visualización del Grafo de Shelters</h3>
+                    <p>Visualiza la red completa de conexiones entre refugios con sus distancias.</p>
+                    <button class="btn btn-primary" onclick="showGraphVisualization()">Mostrar Grafo de Conexiones</button>
+                    <div id="graphContainer" style="display: none;">
+                        <div id="graphCanvas" style="width: 100%; height: 600px; border: 2px solid #3498db; border-radius: 8px; margin-top: 20px; background: #f8f9fa;"></div>
+                        <div class="graph-legend" style="margin-top: 15px; padding: 15px; background: #e8f4f8; border-radius: 8px;">
+                            <h4 style="margin: 0 0 10px 0;">📋 Leyenda</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                                <div><span style="display: inline-block; width: 16px; height: 16px; background: #3498db; border-radius: 50%; vertical-align: middle;"></span> Nodo (Shelter)</div>
+                                <div><span style="display: inline-block; width: 30px; height: 3px; background: #95a5a6; vertical-align: middle;"></span> Conexión NEAR</div>
+                                <div>💡 <strong>Tip:</strong> Arrastra los nodos para reorganizar</div>
+                                <div>🔍 <strong>Peso:</strong> Distancia en kilómetros</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Kruskal/Prim -->
                 <div class="algorithm-section">
