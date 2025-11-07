@@ -410,6 +410,13 @@ body {
     font-weight: 500;
 }
 
+.helper-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: normal;
+    font-style: italic;
+}
+
 .input-group select,
 .input-group input {
     width: 100%;
@@ -428,12 +435,14 @@ body {
 
 /* Checkbox Group */
 .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
     background: var(--neutral-light);
     border-radius: var(--radius-md);
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .checkbox-group label {
@@ -441,11 +450,25 @@ body {
     align-items: center;
     gap: var(--spacing-xs);
     cursor: pointer;
+    padding: var(--spacing-xs);
+    background: white;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease;
+}
+
+.checkbox-group label:hover {
+    background: var(--primary-blue-light);
 }
 
 .checkbox-group input[type="checkbox"] {
     width: auto;
     cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"]:checked + label,
+.checkbox-group label:has(input[type="checkbox"]:checked) {
+    background: var(--primary-blue-light);
+    font-weight: 500;
 }
 
 /* Buttons */
@@ -472,6 +495,24 @@ body {
 }
 
 .btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--neutral-light);
+    color: var(--text-primary);
+    border: 2px solid var(--neutral-border);
+    padding: calc(var(--spacing-sm) - 2px) calc(var(--spacing-lg) - 2px);
+}
+
+.btn-secondary:hover {
+    background: var(--neutral-border);
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:active {
     transform: translateY(0);
 }
 

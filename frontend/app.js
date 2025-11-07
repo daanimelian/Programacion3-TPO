@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTabs();
     checkConnection();
     loadDashboardData();
+    populateSelectors();
 });
 
 // ==================== Tab Navigation ====================
@@ -526,6 +527,145 @@ function showResult(element, type, title, content) {
 
 function showError(message) {
     alert(message);
+}
+
+// ==================== Dynamic Selector Population ====================
+
+async function populateSelectors() {
+    try {
+        // Load shelters and adopters
+        const [shelters, adopters] = await Promise.all([
+            fetchAPI('/shelters'),
+            fetchAPI('/adopters')
+        ]);
+
+        // Populate shelter selectors
+        populateShelterSelectors(shelters);
+
+        // Populate TSP checkboxes
+        populateTSPCheckboxes(shelters);
+
+        // Populate adopter selector
+        populateAdopterSelector(adopters);
+    } catch (error) {
+        console.error('Error populating selectors:', error);
+        // Keep static options as fallback
+    }
+}
+
+function populateShelterSelectors(shelters) {
+    if (!shelters || shelters.length === 0) return;
+
+    const shelterIds = ['bfsFrom', 'bfsTo', 'dijkstraFrom', 'dijkstraTo'];
+
+    shelterIds.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        const currentValue = select.value;
+        select.innerHTML = '';
+
+        shelters.forEach((shelter, index) => {
+            const option = document.createElement('option');
+            option.value = shelter.id;
+            option.textContent = shelter.id === 'H'
+                ? `Hub Central (${shelter.id})`
+                : `${shelter.name || 'Refugio ' + shelter.id}`;
+
+            // Set default selections
+            if ((selectId.includes('To') && index === Math.min(shelters.length - 1, 12)) ||
+                (selectId.includes('From') && index === 0)) {
+                option.selected = true;
+            }
+
+            select.appendChild(option);
+        });
+
+        // Restore previous value if it exists
+        if (currentValue && Array.from(select.options).some(opt => opt.value === currentValue)) {
+            select.value = currentValue;
+        }
+    });
+}
+
+function populateTSPCheckboxes(shelters) {
+    if (!shelters || shelters.length === 0) return;
+
+    const container = document.querySelector('.checkbox-group');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    shelters.forEach((shelter, index) => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'tspNode';
+        checkbox.value = shelter.id;
+
+        // Check first 4 by default (A, B, C, H typically)
+        if (index < 4) {
+            checkbox.checked = true;
+        }
+
+        const text = document.createTextNode(
+            shelter.id === 'H'
+                ? ` Hub Central (${shelter.id})`
+                : ` ${shelter.name || 'Refugio ' + shelter.id}`
+        );
+
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        container.appendChild(label);
+    });
+}
+
+function populateAdopterSelector(adopters) {
+    if (!adopters || adopters.length === 0) return;
+
+    const select = document.getElementById('greedyAdopter');
+    if (!select) return;
+
+    const currentValue = select.value;
+    select.innerHTML = '';
+
+    adopters.forEach(adopter => {
+        const option = document.createElement('option');
+        option.value = adopter.id;
+
+        const yard = adopter.hasYard ? '✓' : '✗';
+        const kids = adopter.hasKids ? '✓' : '✗';
+        const budget = adopter.budget ? `$${adopter.budget.toLocaleString('es-AR')}` : 'N/A';
+        const maxDogs = adopter.maxDogs || 1;
+
+        option.textContent = `${adopter.id} - ${adopter.name} (${budget}, Patio ${yard}, Niños ${kids}, Max: ${maxDogs})`;
+
+        select.appendChild(option);
+    });
+
+    // Restore previous value if it exists
+    if (currentValue && Array.from(select.options).some(opt => opt.value === currentValue)) {
+        select.value = currentValue;
+    }
+}
+
+// ==================== TSP Selection Helpers ====================
+
+function selectAllTSP() {
+    const checkboxes = document.querySelectorAll('input[name="tspNode"]');
+    checkboxes.forEach(cb => cb.checked = true);
+}
+
+function clearAllTSP() {
+    const checkboxes = document.querySelectorAll('input[name="tspNode"]');
+    checkboxes.forEach(cb => cb.checked = false);
+}
+
+function selectDefaultTSP() {
+    const checkboxes = document.querySelectorAll('input[name="tspNode"]');
+    checkboxes.forEach((cb, index) => {
+        cb.checked = index < 4; // Select first 4
+    });
 }
 
 // ==================== Helper Functions ====================
