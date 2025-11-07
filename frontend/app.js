@@ -677,3 +677,161 @@ function formatDistance(distance) {
 function formatCurrency(amount) {
     return `$${amount.toLocaleString('es-AR')}`;
 }
+
+// ==================== Graph Visualization ====================
+
+let cytoscapeInstance = null;
+
+async function showGraphVisualization() {
+    const container = document.getElementById('graphContainer');
+    const canvas = document.getElementById('graphCanvas');
+
+    // Toggle visibility
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+
+        // Fetch graph data
+        try {
+            const data = await fetchAPI('/network/graph');
+
+            if (!data.nodes || !data.edges) {
+                canvas.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;"><h3>❌ Error</h3><p>No se pudieron cargar los datos del grafo</p></div>';
+                return;
+            }
+
+            // Prepare nodes for Cytoscape
+            const cytoscapeNodes = data.nodes.map(nodeId => ({
+                data: {
+                    id: nodeId,
+                    label: nodeId
+                }
+            }));
+
+            // Prepare edges for Cytoscape (avoid duplicates for undirected graph)
+            const edgeSet = new Set();
+            const cytoscapeEdges = [];
+
+            data.edges.forEach(edge => {
+                const edgeKey = [edge.from, edge.to].sort().join('-');
+                if (!edgeSet.has(edgeKey)) {
+                    edgeSet.add(edgeKey);
+                    cytoscapeEdges.push({
+                        data: {
+                            source: edge.from,
+                            target: edge.to,
+                            weight: edge.weight,
+                            label: `${edge.weight.toFixed(1)} km`
+                        }
+                    });
+                }
+            });
+
+            // Destroy previous instance if exists
+            if (cytoscapeInstance) {
+                cytoscapeInstance.destroy();
+            }
+
+            // Initialize Cytoscape
+            cytoscapeInstance = cytoscape({
+                container: canvas,
+
+                elements: {
+                    nodes: cytoscapeNodes,
+                    edges: cytoscapeEdges
+                },
+
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#3498db',
+                            'label': 'data(label)',
+                            'color': '#2c3e50',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'font-size': '14px',
+                            'font-weight': 'bold',
+                            'width': 50,
+                            'height': 50,
+                            'border-width': 3,
+                            'border-color': '#2980b9',
+                            'text-outline-width': 2,
+                            'text-outline-color': '#ffffff'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': '#95a5a6',
+                            'target-arrow-color': '#95a5a6',
+                            'curve-style': 'bezier',
+                            'label': 'data(label)',
+                            'font-size': '11px',
+                            'color': '#34495e',
+                            'text-background-color': '#ffffff',
+                            'text-background-opacity': 0.8,
+                            'text-background-padding': '3px',
+                            'text-border-width': 1,
+                            'text-border-color': '#bdc3c7',
+                            'text-border-opacity': 0.5
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style: {
+                            'background-color': '#e74c3c',
+                            'border-color': '#c0392b'
+                        }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style: {
+                            'line-color': '#e74c3c',
+                            'width': 5
+                        }
+                    }
+                ],
+
+                layout: {
+                    name: 'cose',
+                    idealEdgeLength: 100,
+                    nodeOverlap: 20,
+                    refresh: 20,
+                    fit: true,
+                    padding: 30,
+                    randomize: false,
+                    componentSpacing: 100,
+                    nodeRepulsion: 400000,
+                    edgeElasticity: 100,
+                    nestingFactor: 5,
+                    gravity: 80,
+                    numIter: 1000,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0
+                },
+
+                wheelSensitivity: 0.2
+            });
+
+            // Add interactivity
+            cytoscapeInstance.on('tap', 'node', function(evt) {
+                const node = evt.target;
+                console.log('Clicked node:', node.id());
+            });
+
+            console.log(`Grafo renderizado: ${data.nodes.length} nodos, ${cytoscapeEdges.length} aristas`);
+
+        } catch (error) {
+            console.error('Error loading graph:', error);
+            canvas.innerHTML = `<div style="padding: 20px; text-align: center; color: #e74c3c;">
+                <h3>❌ Error al cargar el grafo</h3>
+                <p>${error.message}</p>
+                <p style="font-size: 0.9em; color: #7f8c8d;">Verifica que el servidor esté corriendo y reiniciado.</p>
+            </div>`;
+        }
+    } else {
+        container.style.display = 'none';
+    }
+}
