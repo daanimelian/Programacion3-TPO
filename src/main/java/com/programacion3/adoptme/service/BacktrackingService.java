@@ -84,6 +84,10 @@ public class BacktrackingService {
             return new Assignment(new HashMap<>(), 0.0);
         }
 
+        // OPTIMIZATION: Limit to first 20 dogs to keep execution time reasonable
+        // With 30+ dogs and 15 adopters, complexity becomes too high
+        List<Dog> limitedDogs = dogs.size() > 20 ? dogs.subList(0, 20) : dogs;
+
         // Estado inicial: ningún perro asignado
         Map<String, List<String>> currentAssignment = new HashMap<>();
         for (Adopter a : adopters) {
@@ -97,9 +101,14 @@ public class BacktrackingService {
 
         // Variables para la mejor solución encontrada
         BestSolution best = new BestSolution();
+        best.startTime = System.currentTimeMillis();
+        best.timeoutMs = 5000; // 5 second timeout
 
         // Iniciar backtracking
-        backtrack(0, dogs, adopters, currentAssignment, currentCost, 0.0, best);
+        backtrack(0, limitedDogs, adopters, currentAssignment, currentCost, 0.0, best);
+
+        System.out.println("[BACKTRACKING] Explored " + best.nodesExplored + " nodes");
+        System.out.println("[BACKTRACKING] Best score: " + best.score);
 
         return new Assignment(best.assignments, best.score);
     }
@@ -110,6 +119,13 @@ public class BacktrackingService {
     private static class BestSolution {
         Map<String, List<String>> assignments = new HashMap<>();
         double score = 0.0;
+        long startTime = 0;
+        long timeoutMs = 5000;
+        int nodesExplored = 0;
+
+        boolean isTimeout() {
+            return System.currentTimeMillis() - startTime > timeoutMs;
+        }
     }
 
     /**
@@ -132,6 +148,13 @@ public class BacktrackingService {
             double currentScore,
             BestSolution best
     ) {
+        // Check timeout
+        if (best.isTimeout()) {
+            return;
+        }
+
+        best.nodesExplored++;
+
         // Caso base: todos los perros fueron considerados
         if (dogIndex == dogs.size()) {
             // Si esta solución es mejor, guardarla
@@ -149,6 +172,11 @@ public class BacktrackingService {
 
         // Opción 2: Intentar asignar este perro a cada adoptante
         for (Adopter adopter : adopters) {
+            // Check timeout periodically
+            if (best.nodesExplored % 1000 == 0 && best.isTimeout()) {
+                return;
+            }
+
             // Verificar si es viable asignar este perro a este adoptante
             if (canAssign(dog, adopter, currentAssignment, currentCost)) {
                 // Calcular score de esta asignación

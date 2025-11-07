@@ -87,7 +87,18 @@
                             <option value="A">Refugio A</option>
                             <option value="B">Refugio B</option>
                             <option value="C">Refugio C</option>
+                            <option value="D">Refugio D</option>
+                            <option value="E">Refugio E</option>
+                            <option value="F">Refugio F</option>
+                            <option value="G">Refugio G</option>
                             <option value="H">Hub Central (H)</option>
+                            <option value="I">Refugio I</option>
+                            <option value="J">Refugio J</option>
+                            <option value="K">Refugio K</option>
+                            <option value="L">Refugio L</option>
+                            <option value="M">Refugio M</option>
+                            <option value="N">Refugio N</option>
+                            <option value="O">Refugio O</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -95,8 +106,19 @@
                         <select id="bfsTo">
                             <option value="A">Refugio A</option>
                             <option value="B">Refugio B</option>
-                            <option value="C" selected>Refugio C</option>
+                            <option value="C">Refugio C</option>
+                            <option value="D">Refugio D</option>
+                            <option value="E">Refugio E</option>
+                            <option value="F">Refugio F</option>
+                            <option value="G">Refugio G</option>
                             <option value="H">Hub Central (H)</option>
+                            <option value="I">Refugio I</option>
+                            <option value="J">Refugio J</option>
+                            <option value="K">Refugio K</option>
+                            <option value="L">Refugio L</option>
+                            <option value="M" selected>Refugio M</option>
+                            <option value="N">Refugio N</option>
+                            <option value="O">Refugio O</option>
                         </select>
                     </div>
                     <div class="button-group">
@@ -116,7 +138,18 @@
                             <option value="A" selected>Refugio A</option>
                             <option value="B">Refugio B</option>
                             <option value="C">Refugio C</option>
+                            <option value="D">Refugio D</option>
+                            <option value="E">Refugio E</option>
+                            <option value="F">Refugio F</option>
+                            <option value="G">Refugio G</option>
                             <option value="H">Hub Central (H)</option>
+                            <option value="I">Refugio I</option>
+                            <option value="J">Refugio J</option>
+                            <option value="K">Refugio K</option>
+                            <option value="L">Refugio L</option>
+                            <option value="M">Refugio M</option>
+                            <option value="N">Refugio N</option>
+                            <option value="O">Refugio O</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -124,8 +157,19 @@
                         <select id="dijkstraTo">
                             <option value="A">Refugio A</option>
                             <option value="B">Refugio B</option>
-                            <option value="C" selected>Refugio C</option>
+                            <option value="C">Refugio C</option>
+                            <option value="D">Refugio D</option>
+                            <option value="E">Refugio E</option>
+                            <option value="F">Refugio F</option>
+                            <option value="G">Refugio G</option>
                             <option value="H">Hub Central (H)</option>
+                            <option value="I">Refugio I</option>
+                            <option value="J">Refugio J</option>
+                            <option value="K">Refugio K</option>
+                            <option value="L">Refugio L</option>
+                            <option value="M" selected>Refugio M</option>
+                            <option value="N">Refugio N</option>
+                            <option value="O">Refugio O</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="executeDijkstra()">Calcular Ruta Óptima</button>
@@ -135,14 +179,30 @@
                 <!-- TSP -->
                 <div class="algorithm-section">
                     <h3>🗺️ TSP Branch & Bound - Ruta Óptima</h3>
-                    <p>Encuentra la ruta más corta que visita todos los refugios seleccionados (Problema del Viajante).</p>
+                    <p>Encuentra la ruta más corta que visita todos los refugios seleccionados (Problema del Viajante). Nota: Seleccionar muchos refugios (>8) puede tomar tiempo.</p>
                     <div class="input-group">
-                        <label>Selecciona Refugios a Visitar:</label>
+                        <label>Selecciona Refugios a Visitar: <span class="helper-text">(Usa Ctrl+Click para múltiples)</span></label>
+                        <div class="button-group" style="margin-bottom: var(--spacing-sm);">
+                            <button class="btn btn-secondary" onclick="selectAllTSP()">Seleccionar Todos</button>
+                            <button class="btn btn-secondary" onclick="clearAllTSP()">Limpiar Todo</button>
+                            <button class="btn btn-secondary" onclick="selectDefaultTSP()">Selección por Defecto</button>
+                        </div>
                         <div class="checkbox-group">
                             <label><input type="checkbox" name="tspNode" value="A" checked> Refugio A</label>
                             <label><input type="checkbox" name="tspNode" value="B" checked> Refugio B</label>
                             <label><input type="checkbox" name="tspNode" value="C" checked> Refugio C</label>
-                            <label><input type="checkbox" name="tspNode" value="H"> Hub Central (H)</label>
+                            <label><input type="checkbox" name="tspNode" value="D"> Refugio D</label>
+                            <label><input type="checkbox" name="tspNode" value="E"> Refugio E</label>
+                            <label><input type="checkbox" name="tspNode" value="F"> Refugio F</label>
+                            <label><input type="checkbox" name="tspNode" value="G"> Refugio G</label>
+                            <label><input type="checkbox" name="tspNode" value="H" checked> Hub Central (H)</label>
+                            <label><input type="checkbox" name="tspNode" value="I"> Refugio I</label>
+                            <label><input type="checkbox" name="tspNode" value="J"> Refugio J</label>
+                            <label><input type="checkbox" name="tspNode" value="K"> Refugio K</label>
+                            <label><input type="checkbox" name="tspNode" value="L"> Refugio L</label>
+                            <label><input type="checkbox" name="tspNode" value="M"> Refugio M</label>
+                            <label><input type="checkbox" name="tspNode" value="N"> Refugio N</label>
+                            <label><input type="checkbox" name="tspNode" value="O"> Refugio O</label>
                         </div>
                     </div>
                     <button class="btn btn-primary" onclick="executeTSP()">Calcular Ruta TSP</button>
@@ -177,9 +237,21 @@
                     <div class="input-group">
                         <label>Selecciona Adoptante:</label>
                         <select id="greedyAdopter">
-                            <option value="P1">Camila (Presupuesto: $50000, Con Patio, Con Niños)</option>
-                            <option value="P2">Lucas (Presupuesto: $30000, Sin Patio, Sin Niños)</option>
-                            <option value="P3">Daniela (Presupuesto: $80000, Con Patio, Sin Niños)</option>
+                            <option value="P1">P1 - Camila ($25,000, Patio ✓, Niños ✓, Max: 2)</option>
+                            <option value="P2">P2 - Lucas ($18,000, Patio ✗, Niños ✗, Max: 1)</option>
+                            <option value="P3">P3 - Daniela ($30,000, Patio ✓, Niños ✗, Max: 3)</option>
+                            <option value="P4">P4 - Martin ($22,000, Patio ✓, Niños ✓, Max: 2)</option>
+                            <option value="P5">P5 - Sofia ($15,000, Patio ✗, Niños ✗, Max: 1)</option>
+                            <option value="P6">P6 - Roberto ($35,000, Patio ✓, Niños ✗, Max: 4)</option>
+                            <option value="P7">P7 - Ana ($20,000, Patio ✓, Niños ✓, Max: 1)</option>
+                            <option value="P8">P8 - Diego ($28,000, Patio ✗, Niños ✗, Max: 2)</option>
+                            <option value="P9">P9 - Julia ($40,000, Patio ✓, Niños ✓, Max: 3)</option>
+                            <option value="P10">P10 - Carlos ($12,000, Patio ✗, Niños ✗, Max: 1)</option>
+                            <option value="P11">P11 - Valeria ($32,000, Patio ✓, Niños ✗, Max: 5)</option>
+                            <option value="P12">P12 - Pedro ($24,000, Patio ✓, Niños ✓, Max: 2)</option>
+                            <option value="P13">P13 - Laura ($16,000, Patio ✗, Niños ✓, Max: 1)</option>
+                            <option value="P14">P14 - Andres ($45,000, Patio ✓, Niños ✗, Max: 4)</option>
+                            <option value="P15">P15 - Monica ($27,000, Patio ✓, Niños ✓, Max: 3)</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="executeGreedy()">Ejecutar Greedy</button>

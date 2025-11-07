@@ -16,17 +16,42 @@ public class DbSeed {
 
     @Transactional
     void seedIfEmpty(Neo4jClient neo4j) {
-        // ¿ya hay shelters?
-        long count = neo4j.query("MATCH (s:Shelter) RETURN count(s) AS c")
+        // Check if data is complete (15 shelters expected)
+        long shelterCount = neo4j.query("MATCH (s:Shelter) RETURN count(s) AS c")
                 .fetchAs(Long.class)
                 .mappedBy((t,r) -> r.get("c").asLong())
                 .one()
                 .orElse(0L);
 
-        if (count > 0) {
-            System.out.println("[SEED] Ya existen shelters (" + count + "), no siembro.");
+        long dogCount = neo4j.query("MATCH (d:Dog) RETURN count(d) AS c")
+                .fetchAs(Long.class)
+                .mappedBy((t,r) -> r.get("c").asLong())
+                .one()
+                .orElse(0L);
+
+        long adopterCount = neo4j.query("MATCH (a:Adopter) RETURN count(a) AS c")
+                .fetchAs(Long.class)
+                .mappedBy((t,r) -> r.get("c").asLong())
+                .one()
+                .orElse(0L);
+
+        // Check if database has complete test data
+        boolean hasCompleteData = shelterCount == 15 && dogCount == 40 && adopterCount == 15;
+
+        if (hasCompleteData) {
+            System.out.println("[SEED] Database already has complete test data:");
+            System.out.println("[SEED]   - 15 Shelters ✓");
+            System.out.println("[SEED]   - 40 Dogs ✓");
+            System.out.println("[SEED]   - 15 Adopters ✓");
             return;
         }
+
+        // Database is incomplete or empty, re-seed everything
+        System.out.println("[SEED] Database incomplete or empty. Current state:");
+        System.out.println("[SEED]   - Shelters: " + shelterCount + "/15");
+        System.out.println("[SEED]   - Dogs: " + dogCount + "/40");
+        System.out.println("[SEED]   - Adopters: " + adopterCount + "/15");
+        System.out.println("[SEED] Cleaning and re-seeding database...");
 
         neo4j.query("MATCH (n) DETACH DELETE n").run();
 
