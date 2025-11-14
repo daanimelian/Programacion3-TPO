@@ -181,7 +181,7 @@ public class TSPService {
     ) {
         double bound = 0.0;
 
-        // Para el nodo actual, sumar la arista mínima a un nodo no visitado
+        // 1. Arista mínima desde nodo actual a cualquier no visitado
         double minFromCurrent = Double.POSITIVE_INFINITY;
         for (String node : allNodes) {
             if (!visited.contains(node)) {
@@ -189,30 +189,73 @@ public class TSPService {
                 minFromCurrent = Math.min(minFromCurrent, dist);
             }
         }
-
         if (minFromCurrent != Double.POSITIVE_INFINITY) {
             bound += minFromCurrent;
         }
 
-        // Para cada nodo no visitado, sumar la arista mínima
-        for (String node : allNodes) {
-            if (!visited.contains(node)) {
-                double minEdge = Double.POSITIVE_INFINITY;
+        // 2. Costo MST de los nodos no visitados
+        List<String> unvisited = allNodes.stream()
+                .filter(n -> !visited.contains(n))
+                .toList();
 
-                for (String other : allNodes) {
-                    if (!node.equals(other)) {
-                        double dist = getDistance(node, other, distMatrix);
-                        minEdge = Math.min(minEdge, dist);
-                    }
-                }
+        if (unvisited.size() > 1) {
+            bound += calculateMSTCost(unvisited, distMatrix);
+        }
 
-                if (minEdge != Double.POSITIVE_INFINITY) {
-                    bound += minEdge;
-                }
+        // 3. Arista mínima desde cualquier no visitado de vuelta al inicio
+        String startNode = allNodes.get(0);
+        if (!visited.contains(startNode) && !unvisited.isEmpty()) {
+            double minToStart = Double.POSITIVE_INFINITY;
+            for (String node : unvisited) {
+                double dist = getDistance(node, startNode, distMatrix);
+                minToStart = Math.min(minToStart, dist);
+            }
+            if (minToStart != Double.POSITIVE_INFINITY) {
+                bound += minToStart;
             }
         }
 
         return bound;
+    }
+
+    // Método auxiliar: Calcular costo MST con algoritmo de Prim
+    private double calculateMSTCost(
+            List<String> nodes,
+            Map<String, Map<String, Double>> distMatrix
+    ) {
+        if (nodes.isEmpty()) return 0.0;
+        if (nodes.size() == 1) return 0.0;
+
+        Set<String> inMST = new HashSet<>();
+        double mstCost = 0.0;
+
+        inMST.add(nodes.get(0));
+
+        while (inMST.size() < nodes.size()) {
+            double minEdge = Double.POSITIVE_INFINITY;
+            String nextNode = null;
+
+            for (String inNode : inMST) {
+                for (String outNode : nodes) {
+                    if (!inMST.contains(outNode)) {
+                        double dist = getDistance(inNode, outNode, distMatrix);
+                        if (dist < minEdge) {
+                            minEdge = dist;
+                            nextNode = outNode;
+                        }
+                    }
+                }
+            }
+
+            if (nextNode != null && minEdge != Double.POSITIVE_INFINITY) {
+                inMST.add(nextNode);
+                mstCost += minEdge;
+            } else {
+                break; // Grafo no conexo
+            }
+        }
+
+        return mstCost;
     }
 
     /**
@@ -233,11 +276,27 @@ public class TSPService {
             }
         }
 
-        // Llenar con las distancias de las aristas (grafo no dirigido)
+        // Llenar con las distancias de las aristas directas (grafo no dirigido)
         for (Edge edge : edges) {
             if (matrix.containsKey(edge.from) && matrix.containsKey(edge.to)) {
                 matrix.get(edge.from).put(edge.to, edge.weight);
-                matrix.get(edge.to).put(edge.from, edge.weight); // No dirigido
+                matrix.get(edge.to).put(edge.from, edge.weight);
+            }
+        }
+
+        // ✅ FLOYD-WARSHALL: Calcular caminos más cortos indirectos
+        for (String k : nodes) {
+            for (String i : nodes) {
+                for (String j : nodes) {
+                    double distIK = matrix.get(i).get(k);
+                    double distKJ = matrix.get(k).get(j);
+                    double distIJ = matrix.get(i).get(j);
+
+                    // Si hay un camino más corto vía k, actualizarlo
+                    if (distIK + distKJ < distIJ) {
+                        matrix.get(i).put(j, distIK + distKJ);
+                    }
+                }
             }
         }
 
@@ -259,7 +318,27 @@ public class TSPService {
      */
     private boolean isConnected(List<String> nodes, Map<String, Map<String, Double>> distMatrix) {
         if (nodes.isEmpty()) return true;
+        if (nodes.size() == 1) return true;
 
+        // Construir grafo de adyacencia BASADO en la distMatrix
+        Map<String, Set<String>> adj = new HashMap<>();
+        for (String node : nodes) {
+            adj.put(node, new HashSet<>());
+        }
+
+        // Si existe un camino (distancia finita), son vecinos
+        for (String from : nodes) {
+            for (String to : nodes) {
+                if (!from.equals(to)) {
+                    double dist = getDistance(from, to, distMatrix);
+                    if (dist != Double.POSITIVE_INFINITY) {
+                        adj.get(from).add(to);  // Hay camino → son vecinos
+                    }
+                }
+            }
+        }
+
+        // BFS para verificar conectividad
         Set<String> visited = new HashSet<>();
         Queue<String> queue = new LinkedList<>();
 
@@ -270,13 +349,11 @@ public class TSPService {
         while (!queue.isEmpty()) {
             String current = queue.poll();
 
-            for (String neighbor : nodes) {
+            // Explorar vecinos REALES del grafo de adyacencia
+            for (String neighbor : adj.get(current)) {
                 if (!visited.contains(neighbor)) {
-                    double dist = getDistance(current, neighbor, distMatrix);
-                    if (dist != Double.POSITIVE_INFINITY) {
-                        visited.add(neighbor);
-                        queue.offer(neighbor);
-                    }
+                    visited.add(neighbor);
+                    queue.offer(neighbor);
                 }
             }
         }
